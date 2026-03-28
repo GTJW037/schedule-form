@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Schedule Request</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F1A12;
+    --card: #1A2B1E;
+    --card-border: #2A3F2E;
+    --green: #4ADE80;
+    --green-dim: #22543D;
+    --green-glow: rgba(74, 222, 128, 0.15);
+    --text: #E8F0EA;
+    --text-dim: #8A9B8E;
+    --off-red: #EF4444;
+    --off-red-dim: rgba(239, 68, 68, 0.15);
+    --white: #FFFFFF;
+    --weekend: rgba(74, 222, 128, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 100px 0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1A3A20 0%, #0F1A12 100%);
+    border-bottom: 1px solid var(--card-border);
+    padding: 24px 20px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+
+  .header .dates {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .name-section {
+    padding: 20px 20px 0;
+  }
+
+  .name-input-wrap {
+    position: relative;
+  }
+
+  .name-input-wrap label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .name-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .name-input:focus {
+    border-color: var(--green);
+  }
+
+  .name-input::placeholder {
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .schedule-type-toggle {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px 0;
+  }
+
+  .type-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .type-btn.active {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .week-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--green);
+    padding: 20px 20px 10px;
+  }
+
+  .days-grid {
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .day-row {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    min-height: 56px;
+  }
+
+  .day-row.weekend {
+    background: var(--weekend);
+  }
+
+  .day-row.is-off {
+    opacity: 0.5;
+  }
+
+  .day-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 80px;
+  }
+
+  .day-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .day-date {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .shift-selector {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .shift-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--card-border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .shift-btn:active {
+    transform: scale(0.95);
+  }
+
+  .shift-btn.selected {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.25);
+  }
+
+  .shift-btn.off-selected {
+    background: var(--off-red-dim);
+    border-color: var(--off-red);
+    color: var(--off-red);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+  }
+
+  .submit-area {
+    padding: 24px 20px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(0deg, var(--bg) 70%, transparent 100%);
+    padding-top: 40px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: var(--green);
+    color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .submit-btn:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--green);
+    color: var(--bg);
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 999;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .legend {
+    padding: 12px 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .legend-item {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+
+  .legend-item span {
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Schedule Request</h1>
+  <div class="dates" id="dateRange">April 6 – April 19, 2026</div>
+</div>
+
+<div class="name-section">
+  <div class="name-input-wrap">
+    <label>Your Name</label>
+    <input type="text" class="name-input" id="nameInput" placeholder="Enter your name" autocomplete="off">
+  </div>
+</div>
+
+<div class="schedule-type-toggle">
+  <button class="type-btn active" onclick="setType('carts')">Carts</button>
+  <button class="type-btn" onclick="setType('proshop')">Pro Shop</button>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div id="scheduleContainer"></div>
+
+<div class="submit-area">
+  <button class="submit-btn" id="submitBtn" onclick="submitSchedule()">Submit Schedule</button>
+</div>
+
+<div class="toast" id="toast">Schedule submitted!</div>
+
+<script>
+  let currentType = 'carts';
+  let selections = {};
+
+  const shifts = {
+    carts: ['AMS', 'PMS', 'OPC', 'CC', 'RGR', 'OFF'],
+    proshop: ['OP', 'CL', 'MID', 'OFF']
+  };
+
+  const shiftLabels = {
+    AMS: 'AM Start', PMS: 'PM Start', OPC: 'Open', CC: 'Close',
+    RGR: 'Ranger', OFF: 'Off', OP: 'Open', CL: 'Close', MID: 'Mid'
+  };
+
+  const legendLabels = {
+    carts: {
+      AMS: 'AM Starter', PMS: 'PM Starter', OPC: 'Open Carts',
+      CC: 'Close Carts', RGR: 'Ranger'
+    },
+    proshop: {
+      OP: 'Open', CL: 'Close', MID: 'Mid Shift'
+    }
+  };
+
+  // Auto-calculate next upcoming Monday as schedule start
+  function getNextMonday() {
+    const today = new Date();
+    const day = today.getDay(); // 0=Sun, 1=Mon, ...
+    const daysUntilMonday = day === 0 ? 1 : day === 1 ? 7 : 8 - day;
+    const nextMon = new Date(today);
+    nextMon.setDate(today.getDate() + daysUntilMonday);
+    nextMon.setHours(0, 0, 0, 0);
+    return nextMon;
+  }
+
+  const startDate = getNextMonday();
+  const days = [];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    days.push({
+      dayName: dayNames[d.getDay()],
+      date: `${monthNames[d.getMonth()]} ${d.getDate()}`,
+      key: `day_${i}`,
+      isWeekend: d.getDay() === 0 || d.getDay() === 6
+    });
+  }
+
+  // Update the header with the actual date range
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + 13);
+  document.getElementById('dateRange').textContent =
+    `${monthNames[startDate.getMonth()]} ${startDate.getDate()} – ${monthNames[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
+
+  function setType(type) {
+    currentType = type;
+    selections = {};
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderLegend();
+    renderSchedule();
+  }
+
+  function renderLegend() {
+    const items = legendLabels[currentType];
+    document.getElementById('legend').innerHTML = Object.entries(items)
+      .map(([code, label]) => `<div class="legend-item"><span>${code}</span> = ${label}</div>`)
+      .join('');
+  }
+
+  function selectShift(dayKey, shift) {
+    if (selections[dayKey] === shift) {
+      delete selections[dayKey];
+    } else {
+      selections[dayKey] = shift;
+    }
+    renderSchedule();
+  }
+
+  function renderSchedule() {
+    const container = document.getElementById('scheduleContainer');
+    let html = '';
+
+    for (let week = 0; week < 2; week++) {
+      html += `<div class="week-label">Week ${week + 1}</div>`;
+      html += `<div class="days-grid">`;
+
+      for (let i = week * 7; i < (week + 1) * 7; i++) {
+        const day = days[i];
+        const selected = selections[day.key];
+        const isOff = selected === 'OFF';
+        const weekendClass = day.isWeekend ? 'weekend' : '';
+        const offClass = isOff ? 'is-off' : '';
+
+        html += `<div class="day-row ${weekendClass} ${offClass}">`;
+        html += `<div class="day-info">`;
+        html += `<div class="day-name">${day.dayName}</div>`;
+        html += `<div class="day-date">${day.date}</div>`;
+        html += `</div>`;
+        html += `<div class="shift-selector">`;
+
+        shifts[currentType].forEach(shift => {
+          const isSelected = selected === shift;
+          const isOffBtn = shift === 'OFF';
+          let cls = 'shift-btn';
+          if (isSelected && isOffBtn) cls += ' off-selected';
+          else if (isSelected) cls += ' selected';
+
+          html += `<button class="${cls}" onclick="selectShift('${day.key}', '${shift}')">${shift}</button>`;
+        });
+
+        html += `</div></div>`;
+      }
+      html += `</div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  function submitSchedule() {
+    const name = document.getElementById('nameInput').value.trim();
+    if (!name) {
+      showToast('Please enter your name');
+      return;
+    }
+
+    const filledDays = Object.keys(selections).length;
+    if (filledDays < 14) {
+      const missing = 14 - filledDays;
+      showToast(`${missing} day${missing > 1 ? 's' : ''} not filled in`);
+      return;
+    }
+
+    // Build submission data
+    const data = {
+      name: name,
+      type: currentType,
+      schedule: {}
+    };
+
+    days.forEach(day => {
+      data.schedule[`${day.dayName} ${day.date}`] = selections[day.key] || 'NOT SET';
+    });
+
+    // Disable button and show sending state
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    // Send to Google Sheets
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_Lio7Lo3wZqNB1agnW2JSe3wFeV8jJM5vLxfEw9R1I2xBoNStB4ZdSfJp5GrTWNAf/exec';
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(() => {
+      showToast('Schedule submitted! ✓');
+      btn.textContent = 'Submitted ✓';
+    })
+    .catch((err) => {
+      showToast('Error submitting — try again');
+      btn.disabled = false;
+      btn.textContent = 'Submit Schedule';
+      console.error(err);
+    });
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Init
+  renderLegend();
+  renderSchedule();
+</script>
+
+</body>
+</html>
