@@ -330,22 +330,23 @@
   let selections = {};
 
   const shifts = {
-    carts: ['AMS', 'PMS', 'OPC', 'CC', 'RGR', 'OFF'],
-    proshop: ['OP', 'CL', 'MID', 'OFF']
+    carts: ['AMS', 'PMS', 'OPC', 'CC', 'RGR', 'ANY-C', 'ANY-S', 'OFF'],
+    proshop: ['OP', 'CL', 'MID', 'ANY-P', 'OFF']
   };
 
   const shiftLabels = {
     AMS: 'AM Start', PMS: 'PM Start', OPC: 'Open', CC: 'Close',
-    RGR: 'Ranger', OFF: 'Off', OP: 'Open', CL: 'Close', MID: 'Mid'
+    RGR: 'Ranger', 'ANY-C': 'Either Cart', 'ANY-S': 'Either Start',
+    OFF: 'Off', OP: 'Open', CL: 'Close', MID: 'Mid', 'ANY-P': 'Either'
   };
 
   const legendLabels = {
     carts: {
       AMS: 'AM Starter', PMS: 'PM Starter', OPC: 'Open Carts',
-      CC: 'Close Carts', RGR: 'Ranger'
+      CC: 'Close Carts', RGR: 'Ranger', 'ANY-C': 'Either Cart Shift', 'ANY-S': 'Either Starter Shift'
     },
     proshop: {
-      OP: 'Open', CL: 'Close', MID: 'Mid Shift'
+      OP: 'Open', CL: 'Close', MID: 'Mid Shift', 'ANY-P': 'Either Shift'
     }
   };
 
