@@ -350,18 +350,25 @@
     }
   };
 
-  // Auto-calculate next upcoming Monday as schedule start
-  function getNextMonday() {
+  // Auto-calculate the Monday that starts the next schedule period
+  // Always at least 7 days out so you can send the link during the current schedule
+  function getNextScheduleMonday() {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const day = today.getDay(); // 0=Sun, 1=Mon, ...
+    // Find the very next Monday
     const daysUntilMonday = day === 0 ? 1 : day === 1 ? 7 : 8 - day;
     const nextMon = new Date(today);
     nextMon.setDate(today.getDate() + daysUntilMonday);
-    nextMon.setHours(0, 0, 0, 0);
+    // If that Monday is less than 7 days away, push to the Monday after
+    const daysAway = (nextMon - today) / (1000 * 60 * 60 * 24);
+    if (daysAway < 7) {
+      nextMon.setDate(nextMon.getDate() + 7);
+    }
     return nextMon;
   }
 
-  const startDate = getNextMonday();
+  const startDate = getNextScheduleMonday();
   const days = [];
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
