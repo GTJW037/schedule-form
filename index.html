@@ -350,15 +350,9 @@
     }
   };
 
-  // Auto-calculate next upcoming Monday as schedule start
+  // Schedule start date - update this each cycle
   function getNextScheduleMonday() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const day = today.getDay(); // 0=Sun, 1=Mon, ...
-    const daysUntilMonday = day === 0 ? 1 : day === 1 ? 7 : 8 - day;
-    const nextMon = new Date(today);
-    nextMon.setDate(today.getDate() + daysUntilMonday);
-    return nextMon;
+    return new Date(2026, 4, 11); // May 11, 2026 (months are 0-indexed)
   }
 
   const startDate = getNextScheduleMonday();
