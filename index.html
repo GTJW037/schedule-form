@@ -330,20 +330,20 @@
   let selections = {};
 
   const shifts = {
-    carts: ['AMS', 'PMS', 'OPC', 'CC', 'RGR', 'ANY-C', 'ANY-S', 'OFF'],
+    carts: ['AMS', 'PMS', 'OPC', 'CC', 'RGR', 'BD', 'ANY-C', 'ANY-S', 'OFF'],
     proshop: ['OP', 'CL', 'MID', 'ANY-P', 'OFF']
   };
 
   const shiftLabels = {
     AMS: 'AM Start', PMS: 'PM Start', OPC: 'Open', CC: 'Close',
-    RGR: 'Ranger', 'ANY-C': 'Either Cart', 'ANY-S': 'Either Start',
+    RGR: 'Ranger', BD: 'Bag Drop', 'ANY-C': 'Either Cart', 'ANY-S': 'Either Start',
     OFF: 'Off', OP: 'Open', CL: 'Close', MID: 'Mid', 'ANY-P': 'Either'
   };
 
   const legendLabels = {
     carts: {
       AMS: 'AM Starter', PMS: 'PM Starter', OPC: 'Open Carts',
-      CC: 'Close Carts', RGR: 'Ranger', 'ANY-C': 'Either Cart Shift', 'ANY-S': 'Either Starter Shift'
+      CC: 'Close Carts', RGR: 'Ranger', BD: 'Bag Drop', 'ANY-C': 'Either Cart Shift', 'ANY-S': 'Either Starter Shift'
     },
     proshop: {
       OP: 'Open', CL: 'Close', MID: 'Mid Shift', 'ANY-P': 'Either Shift'
@@ -352,7 +352,7 @@
 
   // Schedule start date - update this each cycle
   function getNextScheduleMonday() {
-    return new Date(2026, 4, 11); // May 11, 2026 (months are 0-indexed)
+    return new Date(2026, 4, 25); // May 25, 2026
   }
 
   const startDate = getNextScheduleMonday();
