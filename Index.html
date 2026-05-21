@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>F&B Schedule Request</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D0D0D;
+    --card: #1A1A1A;
+    --card-border: #2E2E2E;
+    --yellow: #F5C518;
+    --yellow-dim: #3D3210;
+    --yellow-glow: rgba(245, 197, 24, 0.15);
+    --text: #F0EDE5;
+    --text-dim: #8A8A7E;
+    --off-red: #EF4444;
+    --off-red-dim: rgba(239, 68, 68, 0.15);
+    --white: #FFFFFF;
+    --weekend: rgba(245, 197, 24, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 100px 0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1A1800 0%, #0D0D0D 100%);
+    border-bottom: 1px solid var(--card-border);
+    padding: 24px 20px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 4px;
+  }
+
+  .header .dates {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .name-section {
+    padding: 20px 20px 0;
+  }
+
+  .name-input-wrap label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .name-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .name-input:focus { border-color: var(--yellow); }
+  .name-input::placeholder { color: var(--text-dim); font-weight: 400; }
+
+  .legend {
+    padding: 12px 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .legend-item {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+
+  .legend-item span {
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .week-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    padding: 20px 20px 10px;
+  }
+
+  .days-grid {
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .day-row {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.2s;
+    min-height: 56px;
+  }
+
+  .day-row.weekend { background: var(--weekend); }
+  .day-row.is-off { opacity: 0.5; }
+
+  .day-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .day-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 80px;
+  }
+
+  .day-name { font-weight: 700; font-size: 15px; color: var(--text); }
+  .day-date { font-size: 12px; color: var(--text-dim); font-weight: 500; }
+  .day-hours { font-size: 11px; color: var(--text-dim); font-style: italic; }
+
+  .shift-selector {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+  }
+
+  .shift-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--card-border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .shift-btn:active { transform: scale(0.95); }
+
+  .shift-btn.selected {
+    background: var(--yellow-dim);
+    border-color: var(--yellow);
+    color: var(--yellow);
+    box-shadow: 0 0 12px rgba(245, 197, 24, 0.25);
+  }
+
+  .shift-btn.off-selected {
+    background: var(--off-red-dim);
+    border-color: var(--off-red);
+    color: var(--off-red);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+  }
+
+  .submit-area {
+    padding: 24px 20px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(0deg, var(--bg) 70%, transparent 100%);
+    padding-top: 40px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: var(--yellow);
+    color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .submit-btn:active { transform: scale(0.98); opacity: 0.9; }
+  .submit-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--yellow);
+    color: var(--bg);
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 999;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>F&B Schedule Request</h1>
+  <div class="dates" id="dateRange"></div>
+</div>
+
+<div class="name-section">
+  <div class="name-input-wrap">
+    <label>Your Name</label>
+    <input type="text" class="name-input" id="nameInput" placeholder="Enter your name" autocomplete="off">
+  </div>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div id="scheduleContainer"></div>
+
+<div class="submit-area">
+  <button class="submit-btn" id="submitBtn" onclick="submitSchedule()">Submit Schedule</button>
+</div>
+
+<div class="toast" id="toast">Schedule submitted!</div>
+
+<script>
+  let selections = {};
+
+  const shifts = ['GS-AM', 'GS-PM', 'GS-ANY', 'BC-AM', 'BC-PM', 'BC-ANY', 'HW', 'R/O'];
+
+  // Mon-Wed: simplified options (just ANY for BC/GS, plus HW)
+  // Thu-Sun: full AM/PM/ANY options for BC/GS, plus HW
+  function getShiftsForDay(dayOfWeek) {
+    // 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 0=Sun
+    if (dayOfWeek >= 1 && dayOfWeek <= 3) {
+      // Mon-Wed
+      return ['GS', 'GB-ANY', 'BC-ANY', 'HW', 'R/O'];
+    } else if (dayOfWeek === 4 || dayOfWeek === 5) {
+      // Thu-Fri: single GB, full BC
+      return ['GS', 'GB-ANY', 'BC-AM', 'BC-PM', 'BC-ANY', 'HW', 'R/O'];
+    } else {
+      // Sat-Sun: full GB and BC
+      return ['GS', 'GB-AM', 'GB-PM', 'GB-ANY', 'BC-AM', 'BC-PM', 'BC-ANY', 'HW', 'R/O'];
+    }
+  }
+
+  const legendLabels = {
+    GS: 'Grill Server',
+    'GB-AM': 'Grill Bar AM', 'GB-PM': 'Grill Bar PM', 'GB-ANY': 'Grill Bar Either',
+    'BC-AM': 'Bev Cart AM', 'BC-PM': 'Bev Cart PM', 'BC-ANY': 'Bev Cart Either',
+    HW: 'Halfway'
+  };
+
+  // Hours per day
+  const dayHours = {
+    0: '8AM - 8PM', // Sun
+    1: '11AM - 8PM', // Mon
+    2: '11AM - 8PM', // Tue
+    3: '11AM - 8PM', // Wed
+    4: '11AM - 8PM', // Thu
+    5: '8AM - 8PM',  // Fri
+    6: '8AM - 8PM',  // Sat
+  };
+
+  // Schedule start date - update this each cycle
+  function getNextScheduleMonday() {
+    return new Date(2026, 5, 1); // June 1, 2026
+  }
+
+  const startDate = getNextScheduleMonday();
+  const days = [];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // 7 days for weekly schedule
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    days.push({
+      dayName: dayNames[d.getDay()],
+      date: `${monthNames[d.getMonth()]} ${d.getDate()}`,
+      key: `day_${i}`,
+      isWeekend: d.getDay() === 0 || d.getDay() === 6,
+      dayOfWeek: d.getDay()
+    });
+  }
+
+  // Update header
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + 6);
+  document.getElementById('dateRange').textContent =
+    `${monthNames[startDate.getMonth()]} ${startDate.getDate()} – ${monthNames[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
+
+  // Render legend
+  document.getElementById('legend').innerHTML = Object.entries(legendLabels)
+    .map(([code, label]) => `<div class="legend-item"><span>${code}</span> = ${label}</div>`)
+    .join('');
+
+  function selectShift(dayKey, shift) {
+    if (selections[dayKey] === shift) {
+      delete selections[dayKey];
+    } else {
+      selections[dayKey] = shift;
+    }
+    renderSchedule();
+  }
+
+  function renderSchedule() {
+    const container = document.getElementById('scheduleContainer');
+    let html = '<div class="week-label">This Week</div><div class="days-grid">';
+
+    for (let i = 0; i < 7; i++) {
+      const day = days[i];
+      const selected = selections[day.key];
+      const isOff = selected === 'R/O';
+      const weekendClass = day.isWeekend ? 'weekend' : '';
+      const offClass = isOff ? 'is-off' : '';
+      const hours = dayHours[day.dayOfWeek];
+
+      html += `<div class="day-row ${weekendClass} ${offClass}">`;
+      html += `<div class="day-top">`;
+      html += `<div class="day-info">`;
+      html += `<div class="day-name">${day.dayName}</div>`;
+      html += `<div class="day-date">${day.date}</div>`;
+      html += `<div class="day-hours">${hours}</div>`;
+      html += `</div></div>`;
+      html += `<div class="shift-selector">`;
+
+      const dayShifts = getShiftsForDay(day.dayOfWeek);
+      dayShifts.forEach(shift => {
+        const isSelected = selected === shift;
+        const isOffBtn = shift === 'R/O';
+        let cls = 'shift-btn';
+        if (isSelected && isOffBtn) cls += ' off-selected';
+        else if (isSelected) cls += ' selected';
+        html += `<button class="${cls}" onclick="selectShift('${day.key}', '${shift}')">${shift}</button>`;
+      });
+
+      html += `</div></div>`;
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  function submitSchedule() {
+    const name = document.getElementById('nameInput').value.trim();
+    if (!name) { showToast('Please enter your name'); return; }
+
+    const filledDays = Object.keys(selections).length;
+    if (filledDays < 7) {
+      const missing = 7 - filledDays;
+      showToast(`${missing} day${missing > 1 ? 's' : ''} not filled in`);
+      return;
+    }
+
+    const data = {
+      name: name,
+      type: 'fnb',
+      schedule: {}
+    };
+
+    days.forEach(day => {
+      data.schedule[`${day.dayName} ${day.date}`] = selections[day.key] || 'NOT SET';
+    });
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    // UPDATE THIS URL with the F&B Google Apps Script URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYE81W6JtYb6knNRuqgwzpJojL6GTMb1aDZS_MWQnlrJwCbCAnmVXRYjOlH6v-67zd/exec';
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(() => {
+      showToast('Schedule submitted! ✓');
+      btn.textContent = 'Submitted ✓';
+    })
+    .catch((err) => {
+      showToast('Error submitting — try again');
+      btn.disabled = false;
+      btn.textContent = 'Submit Schedule';
+      console.error(err);
+    });
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  renderSchedule();
+</script>
+
+</body>
+</html>
